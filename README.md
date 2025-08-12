@@ -19,10 +19,27 @@
 
 # Updates
 
-- Whats new in **1.2.0** ?
-1. changed name from `magicfiles` to `zyntra`
-2. some errors has been corrected
-3. new functions added
+- Whats new in **1.1.0** ?
+1. some errors has been corrected
+2. some improvements for `filter_by_ext`
+3. new submodule `zyntra.exts` contatins a `sets` for all popular file extensions
+```python
+from zyntra.exts import EXT_VIDEO,EXT_IMAGES,EXT_DOCS,......
+```
+
+```python
+from zyntra import FileGroup
+from zyntra.exts import EXT_VIDEO
+
+fg = FileGroup("f1.mkv","f2.mp4","f3.txt","f4.jpg","f5.mov","f6.txt")
+
+videos = fg.filter_by_ext(EXT_VIDEO)
+print(videos)
+```
+- Output : 
+```output
+[<FileObj name='f1.mkv'>, <FileObj name='f2.mp4'>, <FileObj name='f5.mov'>]
+```
 
 # Features
 
@@ -134,3 +151,29 @@ print(data["test1.txt"]) # file1 content
 # you can use many functions .....
 fg.remove_all()
 ```
+
+---
+
+## Other
+
+### # `zyntra.exts` *submodule*
+
+- contains a `sets` for all file extensins
+
+`EXT_TEXT` for text files `txt,json...`
+
+`EXT_DOCS` for documents `pdf,xlsx,doc,docx...`
+
+`EXT_IMAGES` for images `png,jpg,gif,heic...`
+
+`EXT_AUDIO` for audio files `mp3,wav,ogg...`
+
+`EXT_VIDEO` for video files `mp4,mkv,avi,...`
+
+`EXT_ARCHIVES` for archives `zip,rar,tar,7z,...`
+
+`EXT_CODE` for code files `html,cpp,py,go,c,rs....`
+
+`EXT_DATABASE` for database files `db,sqlite3,...`
+
+`EXT_EXECUTABLES` for executables `exe,sh,rpm,apk,deb,...`

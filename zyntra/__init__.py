@@ -1,11 +1,22 @@
+"""
+Powerfull module for file handling
+"""
+
 from os import path,remove,rename
 from shutil import copy,move
 from time import ctime
 from json import loads,dump
-from typing import List
+from typing import List,Tuple,Set
 from zipfile import ZipFile
-from functools import lru_cache
+from .exts import *
+
 import hashlib
+
+
+__all__ = ["FileObj","FileGroup","handle_exceptions"]
+__version__ = "1.1.0"
+__author__ = "0xF55"
+__email__ = "0xf55c@proton.me"
 
 def handle_exceptions(func):
     """
@@ -18,6 +29,8 @@ def handle_exceptions(func):
             print("[!] File Not Found")
         except PermissionError:
             print("[!] Permission Error")
+        except IsADirectoryError:
+            print("[!] Trying to open directory not file")
         except Exception as e:
             print(f"[!] An error occurred: {e}")
         return None
@@ -199,7 +212,7 @@ class FileObj:
 
 class FileGroup:
     def __init__(self,*files_names: str | List[str]):
-        if (isinstance(files_names[0],list)):
+        if (isinstance(files_names[0],(list,tuple))):
             self.files_names = files_names[0]
         else:
             self.files_names = files_names
@@ -239,15 +252,38 @@ class FileGroup:
             return not_empty
         return []
     
-    def filter_by_ext(self,ext: str) -> List[FileObj]:
+    def filter_by_ext(self,ext: str | List[str] | Tuple[str] | Set[str]) -> List[FileObj]:
         """
-        Filter files by extension (e.g, json)
+        Filter files by extension (e.g, json)\n
+        Examples:\n
+        ```python
+        from zyntra import FileGroup
+
+        fg = FileGroup("f1.txt","f2.exe","f3.txt","f4.jpg")
+        txt_files = fg.filter_by_ext("txt")
+        ```
+
+        ```python
+        from zyntra import FileGroup
+        from zyntra.exts imprort EXT_VIDEO
+
+        fg = FileGroup("f1.mkv","f2.mp4","f3.txt","f4.jpg","f5.mov","f6.txt")
+
+        videos = fg.filter_by_ext(EXT_VIDEO)
+
+        ```
         """
-        ext = ext.strip(".") if ext.startswith(".") else ext
         files = self.files
         if self.files_names:
-            exts = [f for f in files if f.get_extension() == ext]
-            return exts
+            if isinstance(ext,str):
+                ext = ext.lstrip(".")
+                exts = [f for f in files if f.get_extension() == ext]
+                return exts
+            
+            if isinstance(ext,(list,tuple,set)):
+                exts = [f for f in files if f.get_extension() in ext]
+                return exts
+            
         return []
     
     def total_size(self) -> int:
@@ -268,15 +304,14 @@ class FileGroup:
         """
         return {f.file_name: f.content() for f in self.files}
 
-    def write_all(self, data: str, append=True) -> None:
+    def write_all(self, data: str, mode="a") -> None:
         """
         Write data to all files in the group
         """
-        mode = "a" if append else "w"
+        
         files = self.files
         if self.files_names:
-            for f in files:
-                f.write(data,mode)
+            _ = [f.write(data,mode) for f in files]
 
     def remove_all(self) -> None:
         """
@@ -310,7 +345,8 @@ class FileGroup:
 
     def filter_by_size(self,min: int = 0, max: int = 0,equal: int = 0):
         """
-        Filter files by size (e.g, min=1024,max=4096) in Bytes
+        Filter files by size in Bytes
+        (e.g, min=1024,max=4096 or equal)
         """
         matches = []
         files = self.files
