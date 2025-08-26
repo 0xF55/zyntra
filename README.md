@@ -1,6 +1,6 @@
 # Zyntra
 
-![Zyntra Logo](https://files.catbox.moe/fxba66.png)
+![Zyntra Logo](https://files.catbox.moe/50z2mm.png)
 
 `Zyntra` is a powerfull python module to handle files using two main calsses:
 
